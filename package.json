@@ -1,0 +1,15 @@
+{
+  "name": "rpi-iot-thermometer",
+  "description": "",
+  "version": "0.1.0",
+  "license": "MIT",
+  "private": true,
+  "author": {
+    "name": "Matheus Calegaro",
+    "email": "hello@matheus.me",
+    "url": "https://matheus.me"
+  },
+  "devDependencies": {
+    "lerna": "^4.0.0"
+  }
+}
