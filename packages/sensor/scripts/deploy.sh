@@ -8,6 +8,7 @@ rsync \
   --exclude node_modules \
   --exclude .git \
   --exclude scripts \
+  --exclude .env* \
   . \
   pi@pizero.local:~/dev/rpi-iot-thermometer-sensor
 
