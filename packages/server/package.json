@@ -1,5 +1,5 @@
 {
-  "name": "server",
+  "name": "rpi-iot-thermometer-server",
   "version": "0.0.1",
   "description": "",
   "license": "Proprietary",
