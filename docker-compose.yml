@@ -6,7 +6,7 @@ services:
     build:
       context: ./packages/server
     ports:
-      - 3000:3000
+      - 3001:3000
     environment:
       MQTT_BROKER_HOST: mqtt
       MQTT_BROKER_PORT: 1883
