@@ -1,4 +1,9 @@
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { CreateTemperatureDto } from './dto/create-temperature.dto';
@@ -18,8 +23,20 @@ export class TemperaturesService {
     return `This action returns all temperatures`;
   }
 
-  findOne(externalId: string) {
-    return `This action returns a #${externalId} temperature`;
+  async findOne(externalId: string): Promise<Temperature | never> {
+    this.logger.log(`Fetching temperature [${externalId}]...`);
+
+    const foundTemperature = await this.temperaturesRepository.findOne({ externalId });
+
+    if (!foundTemperature) {
+      this.logger.warn(`Temperature [${externalId}] not found!`);
+
+      throw new NotFoundException();
+    }
+
+    this.logger.log(`Found temperature, returning it...`);
+
+    return foundTemperature;
   }
 
   async create(createTemperatureDto: CreateTemperatureDto): Promise<Temperature | never> {
