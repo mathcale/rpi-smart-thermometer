@@ -1,13 +1,28 @@
 version: '3.8'
 
 services:
+  server:
+    container_name: rpi-iot-thermometer-server
+    build:
+      context: ./packages/server
+    ports:
+      - 3000:3000
+    environment:
+      MQTT_BROKER_HOST: mqtt
+      MQTT_BROKER_PORT: 1883
+      DATABASE_HOST: database
+      DATABASE_PORT: 5432
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_NAME: rpi_iot_thermometer
+
   database:
     container_name: rpi-iot-thermometer-database
     image: postgres:14.3-alpine3.15
     environment:
       POSTGRES_PASSWORD: "postgres"
     ports:
-      - "5432:5432"
+      - 5432:5432
     volumes:
       - database:/var/lib/postgresql/data
 
