@@ -1,4 +1,4 @@
-import { promises } from 'node-dht-sensor';
+import { promises as sensor } from 'node-dht-sensor';
 import dotenv from 'dotenv';
 import { connect as mqttConnect, MqttClient } from 'mqtt';
 
@@ -12,9 +12,9 @@ const SENSOR_PIN = 4;
 const clientId = process.env.MQTT_CLIENT_ID;
 const brokerEndpoint = `mqtt://${process.env.MQTT_BROKER_HOST}:${process.env.MQTT_BROKER_PORT}`;
 
-async function run(mqttClient: MqttClient) {
+export async function run(mqttClient: MqttClient) {
   try {
-    const result = await promises.read(SENSOR_TYPE, SENSOR_PIN);
+    const result = await sensor.read(SENSOR_TYPE, SENSOR_PIN);
 
     logger.info(
       `Got temp = ${result.temperature.toFixed(1)}°C, humidity = ${result.humidity.toFixed(1)}%`,
