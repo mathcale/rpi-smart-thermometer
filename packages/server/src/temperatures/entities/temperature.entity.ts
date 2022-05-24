@@ -6,10 +6,12 @@ import {
   Index,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class Temperature {
   @PrimaryGeneratedColumn()
+  @Exclude()
   id: number;
 
   @Column()
