@@ -1,20 +1,22 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Param, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
 import { TemperaturesService } from './temperatures.service';
 import { CreateTemperatureDto } from './dto/create-temperature.dto';
+import { FindAllTemperaturesParams } from './dto/find-all-temperatures.params';
 
-@Controller()
+@Controller({ path: 'temperatures', version: '1' })
 export class TemperaturesController {
   constructor(private readonly temperaturesService: TemperaturesService) {}
 
-  @MessagePattern('sensors/temperatures/all')
-  findAll() {
-    return this.temperaturesService.findAll();
+  @Get('/')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  findAll(@Query() findAllTemperaturesParams: FindAllTemperaturesParams) {
+    return this.temperaturesService.findAll(findAllTemperaturesParams);
   }
 
-  @MessagePattern('sensors/temperatures/find')
-  findOne(@Payload() externalId: string) {
+  @Get(':externalId')
+  findOne(@Param('externalId') externalId: string) {
     return this.temperaturesService.findOne(externalId);
   }
 

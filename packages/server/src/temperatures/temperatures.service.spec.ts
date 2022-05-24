@@ -45,6 +45,14 @@ describe('TemperaturesService', () => {
     jest.clearAllMocks();
   });
 
+  it('return list of found temperatures', async () => {
+    const result = await service.findAll({ page: 1, pageSize: 10 });
+
+    expect(result).toBeDefined();
+    expect(result.count).toEqual(1);
+    expect(result.data).toStrictEqual([temperatureMock]);
+  });
+
   it('should find temperature by externalId', async () => {
     const repositorySpy = jest.spyOn(repository, 'findOne');
     const temperature = await service.findOne('temperature-1');
@@ -61,5 +69,17 @@ describe('TemperaturesService', () => {
 
     await expect(service.findOne('i-do-not-exist')).rejects.toThrowError(NotFoundException);
     expect(repositorySpy).toBeCalledTimes(1);
+  });
+
+  it('should create new temperature successfully', async () => {
+    const newTemperature = await service.create({
+      temperature: 20.5,
+      humidity: 60,
+      clientId: 'test-client-id',
+      measuredAt: new Date().toISOString(),
+    });
+
+    expect(newTemperature).toBeDefined();
+    expect(newTemperature).toStrictEqual(temperatureMock);
   });
 });

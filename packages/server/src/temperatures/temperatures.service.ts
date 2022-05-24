@@ -5,8 +5,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FindConditions, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 
 import { CreateTemperatureDto } from './dto/create-temperature.dto';
+import { FindAllTemperaturesOutput } from './dto/find-all-temperatures.output';
+import { FindAllTemperaturesParams } from './dto/find-all-temperatures.params';
 import { Temperature } from './entities/temperature.entity';
 import { TemperaturesRepository } from './temperatures.repository';
 
@@ -19,8 +22,42 @@ export class TemperaturesService {
     private readonly temperaturesRepository: TemperaturesRepository,
   ) {}
 
-  findAll() {
-    return `This action returns all temperatures`;
+  async findAll({
+    page,
+    pageSize,
+    startDate,
+    endDate,
+  }: FindAllTemperaturesParams): Promise<FindAllTemperaturesOutput | never> {
+    this.logger.log(
+      `Starting find all temperatures flow, page: [${page}], pageSize: [${pageSize}], startDate: [${startDate}], endDate: [${endDate}]`,
+    );
+
+    const where: FindConditions<Temperature> = {};
+
+    if (startDate) {
+      where.measuredAt = MoreThanOrEqual(startDate);
+    }
+
+    if (endDate) {
+      where.measuredAt = LessThanOrEqual(endDate);
+    }
+
+    const [result, total] = await this.temperaturesRepository.findAndCount({
+      take: pageSize,
+      skip: (page - 1) * pageSize,
+      where,
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    this.logger.log(`Fetched temperatures, found [${total}]`);
+
+    return {
+      count: total,
+      pageSize,
+      data: result,
+    };
   }
 
   async findOne(externalId: string): Promise<Temperature | never> {
@@ -52,6 +89,7 @@ export class TemperaturesService {
       return temperature;
     } catch (err) {
       this.logger.error(err);
+
       throw new InternalServerErrorException();
     }
   }
