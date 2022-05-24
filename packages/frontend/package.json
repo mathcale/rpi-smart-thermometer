@@ -10,9 +10,9 @@
     "url": "https://matheus.me"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p ${PORT-3001}",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p ${PORT-3001}",
     "lint": "next lint"
   },
   "dependencies": {
