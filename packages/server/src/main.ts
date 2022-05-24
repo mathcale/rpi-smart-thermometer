@@ -1,8 +1,11 @@
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Transport, MicroserviceOptions } from '@nestjs/microservices';
+import { fastifyHelmet } from 'fastify-helmet';
 
 import { AppModule } from './app.module';
+import { TransformInterceptor } from './transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -11,6 +14,15 @@ async function bootstrap() {
       logger: true,
     }),
   );
+
+  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalInterceptors(new TransformInterceptor());
+
+  app.enableVersioning({
+    type: VersioningType.URI,
+  });
+
+  await app.register(fastifyHelmet);
 
   await app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.MQTT,
