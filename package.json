@@ -13,7 +13,8 @@
     "postinstall": "lerna bootstrap",
     "clean": "lerna clean -y",
     "build": "lerna run build --stream",
-    "test": "lerna run test --stream"
+    "test": "lerna run test --stream",
+    "start": "lerna run start:dev --stream"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.0.0",
