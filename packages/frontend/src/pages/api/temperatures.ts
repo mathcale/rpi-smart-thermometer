@@ -1,8 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+import { ApiError } from '../../dto/api-error.output';
+import { FindAllTemperaturesOutput } from '../../dto/find-all-temperatures.output';
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<FindAllTemperaturesOutput | ApiError>,
+) {
   const response = await fetch(`${process.env.API_URL}/v1/temperatures`);
-  const data = await response.json();
+  const data: FindAllTemperaturesOutput = await response.json();
 
   if (!response.ok) {
     console.error('temperatures.handler:', data);
