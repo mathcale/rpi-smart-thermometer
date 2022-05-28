@@ -21,7 +21,7 @@ import { TemperaturesModule } from './temperatures/temperatures.module';
         database: configService.get('DATABASE_NAME'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         autoLoadEntities: true,
-        synchronize: process.env.NODE_ENV !== 'production',
+        synchronize: true,
         migrations: [__dirname + '/migrations/*.migration{.ts,.js}'],
         namingStrategy: new SnakeNamingStrategy(),
         cli: {
