@@ -2,6 +2,8 @@ import Head from 'next/head';
 import Image from 'next/image';
 import dayjs from 'dayjs';
 
+import type { GetServerSideProps } from 'next/types';
+
 import { ApiError } from '../dto/api-error.output';
 import { FindAllTemperaturesOutput } from '../dto/find-all-temperatures.output';
 
@@ -47,38 +49,40 @@ export default function IndexPage({ findAllTemperaturesResponse, apiError }: Ind
           </div>
         ) : (
           <>
-            <section className="my-10">
-              <div className="flex flex-wrap items-center justify-center">
-                <div className="card w-96 bg-base-300 shadow-xl mr-0 mb-5 md:mr-5 md:mb-0">
-                  <div className="card-body">
-                    <h2 className="card-title">Temperature</h2>
-                    <p className="text-lg">
-                      {findAllTemperaturesResponse.data[0].temperature.toFixed(1)}°C
-                    </p>
+            {findAllTemperaturesResponse.count > 0 && (
+              <section className="my-10">
+                <div className="flex flex-wrap items-center justify-center">
+                  <div className="card w-96 bg-base-300 shadow-xl mr-0 mb-5 md:mr-5 md:mb-0">
+                    <div className="card-body">
+                      <h2 className="card-title">Temperature</h2>
+                      <p className="text-lg">
+                        {findAllTemperaturesResponse.data[0].temperature.toFixed(1)}°C
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="card w-96 bg-base-300 shadow-xl mr-0 mb-5 md:mr-5 md:mb-0">
-                  <div className="card-body">
-                    <h2 className="card-title">Humidity</h2>
-                    <p className="text-lg">
-                      {findAllTemperaturesResponse.data[0].humidity.toFixed(1)}%
-                    </p>
+                  <div className="card w-96 bg-base-300 shadow-xl mr-0 mb-5 md:mr-5 md:mb-0">
+                    <div className="card-body">
+                      <h2 className="card-title">Humidity</h2>
+                      <p className="text-lg">
+                        {findAllTemperaturesResponse.data[0].humidity.toFixed(1)}%
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="card w-96 bg-base-300 shadow-xl">
-                  <div className="card-body">
-                    <h2 className="card-title">Measured at</h2>
-                    <p className="text-lg">
-                      {dayjs(findAllTemperaturesResponse.data[0].measuredAt).format(
-                        'DD/MM/YYYY HH:mm',
-                      )}
-                    </p>
+                  <div className="card w-96 bg-base-300 shadow-xl">
+                    <div className="card-body">
+                      <h2 className="card-title">Measured at</h2>
+                      <p className="text-lg">
+                        {dayjs(findAllTemperaturesResponse.data[0].measuredAt).format(
+                          'DD/MM/YYYY HH:mm',
+                        )}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </section>
+              </section>
+            )}
 
             <section>
               <h2 className="text-2xl font-bold">Measurements log</h2>
@@ -112,15 +116,17 @@ export default function IndexPage({ findAllTemperaturesResponse, apiError }: Ind
   );
 }
 
-export async function getServerSideProps() {
-  const response = await fetch(`${process.env.BASE_URL}/api/temperatures`);
-  const data = await response.json();
+export const getServerSideProps: GetServerSideProps = async () => {
+  const response = await fetch(`${process.env.API_URL}/v1/temperatures`);
+  const data: FindAllTemperaturesOutput = await response.json();
 
   if (!response.ok) {
+    console.error('[ERROR] IndexPage.getServerSideProps:', data);
+
     return {
       props: {
         findAllTemperaturesResponse: null,
-        apiError: data.error,
+        apiError: 'There was an error while querying the temperatures, please try again later!',
       },
     };
   }
@@ -131,4 +137,4 @@ export async function getServerSideProps() {
       apiError: null,
     },
   };
-}
+};
