@@ -1,43 +1,26 @@
-FROM node:16.15.0-alpine3.15 AS deps
-
-RUN apk add --no-cache libc6-compat
-
+FROM node:16.15.0-buster-slim AS base
+RUN apt-get update && apt-get install libssl-dev ca-certificates -y
 WORKDIR /app
+
 COPY package.json yarn.lock ./
 
-RUN yarn install --frozen-lockfile
+FROM base as build
+RUN export NODE_ENV=production
+RUN yarn
 
-# ----
-
-FROM node:16.15.0-alpine3.15 AS builder
-
-WORKDIR /app
-
-COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-ENV NEXT_TELEMETRY_DISABLED 1
 RUN yarn build
 
-# ----
+FROM base as prod-build
 
-FROM node:16.15.0-alpine3.15 AS runner
-WORKDIR /app
+RUN yarn install --production
+RUN cp -R node_modules prod_node_modules
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+FROM base as prod
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+COPY --from=prod-build /app/prod_node_modules /app/node_modules
+COPY --from=build /app/.next /app/.next
+COPY --from=build /app/public /app/public
 
-# COPY --from=builder /app/next.config.js ./
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
 EXPOSE 3000
-ENV PORT 3000
-
-CMD ["node", "server.js"]
+CMD ["yarn", "start"]

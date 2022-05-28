@@ -7,7 +7,11 @@ services:
       context: ./packages/server
     ports:
       - 3001:3000
+    links:
+      - database
+      - mqtt
     environment:
+      PORT: 3001
       MQTT_BROKER_HOST: mqtt
       MQTT_BROKER_PORT: 1883
       DATABASE_HOST: database
@@ -15,6 +19,22 @@ services:
       DATABASE_USER: postgres
       DATABASE_PASSWORD: postgres
       DATABASE_NAME: rpi_iot_thermometer
+    depends_on:
+      - database
+      - mqtt
+
+  frontend:
+    container_name: rpi-iot-thermometer-frontend
+    build:
+      context: ./packages/frontend
+    ports:
+      - 3002:3001
+    links:
+      - server
+    environment:
+      API_URL: http://server:3001
+    depends_on:
+      - server
 
   database:
     container_name: rpi-iot-thermometer-database
@@ -39,3 +59,6 @@ services:
 volumes:
   database:
   mqtt:
+
+networks:
+  net:
