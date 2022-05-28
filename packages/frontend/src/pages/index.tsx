@@ -50,12 +50,12 @@ export default function IndexPage({ findAllTemperaturesResponse, apiError }: Ind
         ) : (
           <>
             {findAllTemperaturesResponse.count > 0 && (
-              <section className="my-10">
+              <section className="my-10" data-testid="cards-section">
                 <div className="flex flex-wrap items-center justify-center">
                   <div className="card w-96 bg-base-300 shadow-xl mr-0 mb-5 md:mr-5 md:mb-0">
                     <div className="card-body">
                       <h2 className="card-title">Temperature</h2>
-                      <p className="text-lg">
+                      <p className="text-lg" data-testid="temperature-summary-card-value">
                         {findAllTemperaturesResponse.data[0].temperature.toFixed(1)}°C
                       </p>
                     </div>
@@ -64,7 +64,7 @@ export default function IndexPage({ findAllTemperaturesResponse, apiError }: Ind
                   <div className="card w-96 bg-base-300 shadow-xl mr-0 mb-5 md:mr-5 md:mb-0">
                     <div className="card-body">
                       <h2 className="card-title">Humidity</h2>
-                      <p className="text-lg">
+                      <p className="text-lg" data-testid="humidity-summary-card-value">
                         {findAllTemperaturesResponse.data[0].humidity.toFixed(1)}%
                       </p>
                     </div>
@@ -73,7 +73,7 @@ export default function IndexPage({ findAllTemperaturesResponse, apiError }: Ind
                   <div className="card w-96 bg-base-300 shadow-xl">
                     <div className="card-body">
                       <h2 className="card-title">Measured at</h2>
-                      <p className="text-lg">
+                      <p className="text-lg" data-testid="measured-at-summary-card-value">
                         {dayjs(findAllTemperaturesResponse.data[0].measuredAt).format(
                           'DD/MM/YYYY HH:mm',
                         )}
@@ -88,7 +88,7 @@ export default function IndexPage({ findAllTemperaturesResponse, apiError }: Ind
               <h2 className="text-2xl font-bold">Measurements log</h2>
 
               <div className="overflow-x-auto mt-5">
-                <table className="table table-zebra w-full">
+                <table className="table table-zebra w-full" data-testid="measurements-table">
                   <thead>
                     <tr>
                       <th>Date</th>
