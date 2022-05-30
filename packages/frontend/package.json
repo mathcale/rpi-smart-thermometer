@@ -14,7 +14,8 @@
     "build": "next build",
     "start": "next start -p ${PORT-3001}",
     "lint": "next lint",
-    "test": "TZ=UTC jest --watch"
+    "test": "TZ=UTC jest",
+    "test:watch": "TZ=UTC jest --watch"
   },
   "dependencies": {
     "daisyui": "^2.15.1",
