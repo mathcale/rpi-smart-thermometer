@@ -1,10 +1,10 @@
-import { promises as sensor, SensorData } from 'node-dht-sensor';
+import { promises as sensor } from 'node-dht-sensor';
 import dotenv from 'dotenv';
 import { connect as mqttConnect, MqttClient } from 'mqtt';
 import oled from 'rpi-oled';
-import font from 'oled-font-5x7';
 
 import logger from './utils/logger';
+import { showTemperatureOnDisplay } from './utils/show-temperarute-on-display.util';
 
 dotenv.config();
 
@@ -19,44 +19,27 @@ const oledOptions = {
 const clientId = process.env.MQTT_CLIENT_ID;
 const brokerEndpoint = `mqtt://${process.env.MQTT_BROKER_HOST}:${process.env.MQTT_BROKER_PORT}`;
 
-export function showOnDisplay(oledDisplay: any, result: SensorData): void {
-  logger.info('Displaying readings result on OLED screen...');
-
-  oledDisplay.turnOnDisplay();
-  oledDisplay.clearDisplay();
-  oledDisplay.dimDisplay(true);
-
-  oledDisplay.setCursor(1, 1);
-  oledDisplay.writeString(font, 1, 'Temperatura:', 1, true);
-
-  oledDisplay.setCursor(1, 10);
-  oledDisplay.writeString(font, 1, `${result.temperature.toFixed(1)}°C`, 1, true);
-
-  oledDisplay.setCursor(1, 30);
-  oledDisplay.writeString(font, 1, 'Humidade:', 1, true);
-
-  oledDisplay.setCursor(1, 40);
-  oledDisplay.writeString(font, 1, `${result.humidity.toFixed(1)}%`, 1, true);
-
-  setTimeout(() => oledDisplay.turnOffDisplay(), 10000);
-}
-
 export async function run(mqttClient: MqttClient, oledDisplay: any) {
   try {
     const result = await sensor.read(SENSOR_TYPE, SENSOR_PIN);
+    const measuredAt = new Date().toISOString();
 
     logger.info(
       `Got temp = ${result.temperature.toFixed(1)}°C, humidity = ${result.humidity.toFixed(1)}%`,
     );
 
-    showOnDisplay(oledDisplay, result);
+    showTemperatureOnDisplay(oledDisplay, {
+      temperature: result.temperature,
+      humidity: result.humidity,
+      measuredAt,
+    });
 
     const topic = 'sensors/temperatures/create';
     const payload = {
       clientId,
       temperature: result.temperature,
       humidity: result.humidity,
-      measuredAt: new Date().toISOString(),
+      measuredAt,
     };
 
     logger.info('Publishing data...');

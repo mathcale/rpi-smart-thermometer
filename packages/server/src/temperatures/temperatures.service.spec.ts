@@ -53,6 +53,24 @@ describe('TemperaturesService', () => {
     expect(result.data).toStrictEqual([temperatureMock]);
   });
 
+  it('should find latest temperature', async () => {
+    const repositorySpy = jest.spyOn(repository, 'findOne');
+    const temperature = await service.findLatest();
+
+    expect(temperature).toBeDefined();
+    expect(temperature).toStrictEqual(temperature);
+    expect(repositorySpy).toBeCalledTimes(1);
+  });
+
+  it('should throw error when trying to get latest temperature but non exists', async () => {
+    const repositorySpy = jest.spyOn(repository, 'findOne').mockImplementation(() => {
+      throw new NotFoundException();
+    });
+
+    await expect(service.findLatest()).rejects.toThrowError(NotFoundException);
+    expect(repositorySpy).toBeCalledTimes(1);
+  });
+
   it('should find temperature by externalId', async () => {
     const repositorySpy = jest.spyOn(repository, 'findOne');
     const temperature = await service.findOne('temperature-1');

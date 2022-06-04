@@ -60,6 +60,26 @@ export class TemperaturesService {
     };
   }
 
+  async findLatest(): Promise<Temperature | never> {
+    this.logger.log(`Fetching latest temperature reading...`);
+
+    const latestTemperature = await this.temperaturesRepository.findOne({
+      order: {
+        measuredAt: 'DESC',
+      },
+    });
+
+    if (!latestTemperature) {
+      this.logger.warn(`Temperature not found!`);
+
+      throw new NotFoundException();
+    }
+
+    this.logger.log(`Found latest temperature, returning it...`);
+
+    return latestTemperature;
+  }
+
   async findOne(externalId: string): Promise<Temperature | never> {
     this.logger.log(`Fetching temperature [${externalId}]...`);
 
