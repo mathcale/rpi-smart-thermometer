@@ -15,6 +15,11 @@ export class TemperaturesController {
     return this.temperaturesService.findAll(findAllTemperaturesParams);
   }
 
+  @Get('latest')
+  findLatest() {
+    return this.temperaturesService.findLatest();
+  }
+
   @Get(':externalId')
   findOne(@Param('externalId') externalId: string) {
     return this.temperaturesService.findOne(externalId);
