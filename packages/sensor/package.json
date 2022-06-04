@@ -14,19 +14,23 @@
     "build": "rimraf ./dist && tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "deploy": "yarn build && ./scripts/deploy.sh"
   },
   "dependencies": {
     "dotenv": "^16.0.1",
     "mqtt": "^4.3.7",
     "node-dht-sensor": "^0.4.3",
+    "oled-font-5x7": "^1.0.3",
     "pino": "^7.11.0",
-    "pino-pretty": "^7.6.1"
+    "pino-pretty": "^7.6.1",
+    "rpi-oled": "^0.9.1"
   },
   "devDependencies": {
     "@types/jest": "^27.5.1",
     "@types/node": "^17.0.35",
     "@types/node-dht-sensor": "^0.4.0",
+    "coffee-script": "^1.12.7",
     "jest": "^28.1.0",
     "rimraf": "^3.0.2",
     "ts-jest": "^28.0.2",

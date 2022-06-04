@@ -1,5 +1,6 @@
 import { promises as sensor } from 'node-dht-sensor';
 import { connect as mqttConnect } from 'mqtt';
+import oled from 'rpi-oled';
 
 import { run } from './';
 
@@ -12,8 +13,23 @@ jest.mock('node-dht-sensor', () => ({
   },
 }));
 
+jest.mock('rpi-oled', () =>
+  jest.fn().mockImplementation(() => ({
+    turnOnDisplay: jest.fn(),
+    clearDisplay: jest.fn(),
+    dimDisplay: jest.fn(),
+    setCursor: jest.fn(),
+    writeString: jest.fn(),
+    turnOffDisplay: jest.fn(),
+  })),
+);
+
 describe('Sensor', () => {
-  it('Should read value from sensor and post it to mqtt topic', async () => {
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('Should read value from sensor, write it on OLED display and post it to mqtt topic', async () => {
     const mqttClient = mqttConnect('mqtt://localhost:1883', {
       clientId: 'test-client',
       clean: false,
@@ -21,12 +37,16 @@ describe('Sensor', () => {
       reconnectPeriod: 1000,
     });
 
+    const oledDisplay = new oled({ width: 128, height: 64 });
+
     const sensorReadSpy = jest.spyOn(sensor, 'read');
     const mqttPublishSpy = jest.spyOn(mqttClient, 'publish');
+    const oledDisplayWriteSpy = jest.spyOn(oledDisplay, 'writeString');
 
-    await run(mqttClient);
+    await run(mqttClient, oledDisplay);
 
     expect(sensorReadSpy).toBeCalledTimes(1);
     expect(mqttPublishSpy).toBeCalledTimes(1);
+    expect(oledDisplayWriteSpy).toBeCalledTimes(4);
   });
 });
