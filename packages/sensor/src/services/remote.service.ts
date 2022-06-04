@@ -9,7 +9,7 @@ export const RemoteService = {
   getLatestReading: async (): Promise<FindLatestTemperatureOutput | never> => {
     logger.info('Fetching latest temperature reading from server...');
 
-    const response = await request(`${process.env.API_URL}/v1/temperatures`);
+    const response = await request(`${process.env.API_URL}/v1/temperatures/latest`);
     const data: FindLatestTemperatureOutput = await response.body.json();
 
     if (response.statusCode >= 400) {
@@ -17,7 +17,7 @@ export const RemoteService = {
       throw new Error((data as unknown as ApiError).error);
     }
 
-    logger.info('Got temperature from server!');
+    logger.info(`Got temperature from server! [${JSON.stringify(data)}]`);
 
     return data;
   },
