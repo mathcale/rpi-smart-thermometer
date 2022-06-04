@@ -19,9 +19,7 @@ const oledOptions = {
 const clientId = process.env.MQTT_CLIENT_ID;
 const brokerEndpoint = `mqtt://${process.env.MQTT_BROKER_HOST}:${process.env.MQTT_BROKER_PORT}`;
 
-const oledDisplay = new oled(oledOptions);
-
-export function showOnDisplay(result: SensorData): void {
+export function showOnDisplay(oledDisplay: any, result: SensorData): void {
   logger.info('Displaying readings result on OLED screen...');
 
   oledDisplay.turnOnDisplay();
@@ -43,7 +41,7 @@ export function showOnDisplay(result: SensorData): void {
   setTimeout(() => oledDisplay.turnOffDisplay(), 10000);
 }
 
-export async function run(mqttClient: MqttClient) {
+export async function run(mqttClient: MqttClient, oledDisplay: any) {
   try {
     const result = await sensor.read(SENSOR_TYPE, SENSOR_PIN);
 
@@ -51,7 +49,7 @@ export async function run(mqttClient: MqttClient) {
       `Got temp = ${result.temperature.toFixed(1)}°C, humidity = ${result.humidity.toFixed(1)}%`,
     );
 
-    showOnDisplay(result);
+    showOnDisplay(oledDisplay, result);
 
     const topic = 'sensors/temperatures/create';
     const payload = {
@@ -76,6 +74,8 @@ export async function run(mqttClient: MqttClient) {
   }
 }
 
+const oledDisplay = new oled(oledOptions);
+
 const mqttClient = mqttConnect(brokerEndpoint, {
   clientId,
   clean: process.env.NODE_ENV !== 'production',
@@ -95,4 +95,4 @@ mqttClient.on('message', (topic, payload) => {
   logger.info(`Message on topic "${topic}": ${payload}`);
 });
 
-run(mqttClient);
+run(mqttClient, oledDisplay);
