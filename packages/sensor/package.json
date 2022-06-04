@@ -18,6 +18,7 @@
     "deploy": "yarn build && ./scripts/deploy.sh"
   },
   "dependencies": {
+    "dayjs": "^1.11.2",
     "dotenv": "^16.0.1",
     "mqtt": "^4.3.7",
     "node-dht-sensor": "^0.4.3",
