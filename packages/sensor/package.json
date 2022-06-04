@@ -22,9 +22,11 @@
     "mqtt": "^4.3.7",
     "node-dht-sensor": "^0.4.3",
     "oled-font-5x7": "^1.0.3",
+    "onoff": "^6.0.3",
     "pino": "^7.11.0",
     "pino-pretty": "^7.6.1",
-    "rpi-oled": "^0.9.1"
+    "rpi-oled": "^0.9.1",
+    "undici": "^5.4.0"
   },
   "devDependencies": {
     "@types/jest": "^27.5.1",
