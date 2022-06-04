@@ -14,8 +14,10 @@ const oledOptions = {
   height: 64,
 };
 
-const button = new Gpio(17, 'in', 'both', { debounceTimeout: 50 });
+const button = new Gpio(17, 'in', 'both', { debounceTimeout: 100 });
 const oledDisplay = new oled(oledOptions);
+
+oledDisplay.turnOffDisplay();
 
 button.watch(async (err, value) => {
   if (err) {
@@ -41,6 +43,7 @@ button.watch(async (err, value) => {
 });
 
 process.on('SIGINT', () => {
+  oledDisplay.turnOffDisplay();
   button.unexport();
 });
 
