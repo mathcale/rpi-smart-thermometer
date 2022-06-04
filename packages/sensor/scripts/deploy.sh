@@ -9,7 +9,9 @@ rsync \
   --exclude .git \
   --exclude scripts \
   --exclude .env* \
+  --exclude src \
+  --exclude jest.config.ts \
   . \
-  pi@pizero.local:~/dev/rpi-iot-thermometer-sensor
+  pi@pizero.local:~/dev/rpi-smart-thermometer-sensor
 
 echo "Done in ${SECONDS}s"
