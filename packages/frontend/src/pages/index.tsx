@@ -4,6 +4,9 @@ import dayjs from 'dayjs';
 
 import type { GetServerSideProps } from 'next/types';
 
+import ErrorIcon from '../components/error-icon.component';
+import SummaryCard from '../components/summary-card.component';
+
 import { ApiError } from '../dto/api-error.output';
 import { FindAllTemperaturesOutput } from '../dto/find-all-temperatures.output';
 
@@ -28,22 +31,9 @@ export default function IndexPage({ findAllTemperaturesResponse, apiError }: Ind
         </div>
 
         {apiError ? (
-          <div className="alert alert-error shadow-lg">
+          <div className="alert alert-error shadow-lg my-10">
             <div>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="stroke-current flex-shrink-0 h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-
+              <ErrorIcon />
               <span>{apiError.error}</span>
             </div>
           </div>
@@ -52,34 +42,22 @@ export default function IndexPage({ findAllTemperaturesResponse, apiError }: Ind
             {findAllTemperaturesResponse.count > 0 && (
               <section className="my-10" data-testid="cards-section">
                 <div className="flex flex-wrap items-center justify-center">
-                  <div className="card w-96 bg-base-300 shadow-xl mr-0 mb-5 md:mr-5 md:mb-0">
-                    <div className="card-body">
-                      <h2 className="card-title">Temperature</h2>
-                      <p className="text-lg" data-testid="temperature-summary-card-value">
-                        {findAllTemperaturesResponse.data[0].temperature.toFixed(1)}°C
-                      </p>
-                    </div>
-                  </div>
+                  <SummaryCard
+                    title="Temperature"
+                    content={`${findAllTemperaturesResponse.data[0].temperature.toFixed(1)}°C`}
+                  />
 
-                  <div className="card w-96 bg-base-300 shadow-xl mr-0 mb-5 md:mr-5 md:mb-0">
-                    <div className="card-body">
-                      <h2 className="card-title">Humidity</h2>
-                      <p className="text-lg" data-testid="humidity-summary-card-value">
-                        {findAllTemperaturesResponse.data[0].humidity.toFixed(1)}%
-                      </p>
-                    </div>
-                  </div>
+                  <SummaryCard
+                    title="Humidity"
+                    content={`${findAllTemperaturesResponse.data[0].humidity.toFixed(1)}°C`}
+                  />
 
-                  <div className="card w-96 bg-base-300 shadow-xl">
-                    <div className="card-body">
-                      <h2 className="card-title">Measured at</h2>
-                      <p className="text-lg" data-testid="measured-at-summary-card-value">
-                        {dayjs(findAllTemperaturesResponse.data[0].measuredAt).format(
-                          'DD/MM/YYYY HH:mm',
-                        )}
-                      </p>
-                    </div>
-                  </div>
+                  <SummaryCard
+                    title="Measured at"
+                    content={`${dayjs(findAllTemperaturesResponse.data[0].measuredAt).format(
+                      'DD/MM/YYYY HH:mm',
+                    )}`}
+                  />
                 </div>
               </section>
             )}
@@ -126,7 +104,9 @@ export const getServerSideProps: GetServerSideProps = async () => {
     return {
       props: {
         findAllTemperaturesResponse: null,
-        apiError: 'There was an error while querying the temperatures, please try again later!',
+        apiError: {
+          error: 'There was an error while querying the temperatures, please try again later!',
+        },
       },
     };
   }
