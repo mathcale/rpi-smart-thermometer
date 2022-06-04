@@ -1,6 +1,8 @@
-import { promises as sensor } from 'node-dht-sensor';
+import { promises as sensor, SensorData } from 'node-dht-sensor';
 import dotenv from 'dotenv';
 import { connect as mqttConnect, MqttClient } from 'mqtt';
+import oled from 'rpi-oled';
+import font from 'oled-font-5x7';
 
 import logger from './utils/logger';
 
@@ -9,8 +11,37 @@ dotenv.config();
 const SENSOR_TYPE = 22;
 const SENSOR_PIN = 4;
 
+const oledOptions = {
+  width: 128,
+  height: 64,
+};
+
 const clientId = process.env.MQTT_CLIENT_ID;
 const brokerEndpoint = `mqtt://${process.env.MQTT_BROKER_HOST}:${process.env.MQTT_BROKER_PORT}`;
+
+const oledDisplay = new oled(oledOptions);
+
+export function showOnDisplay(result: SensorData): void {
+  logger.info('Displaying readings result on OLED screen...');
+
+  oledDisplay.turnOnDisplay();
+  oledDisplay.clearDisplay();
+  oledDisplay.dimDisplay(true);
+
+  oledDisplay.setCursor(1, 1);
+  oledDisplay.writeString(font, 1, 'Temperatura:', 1, true);
+
+  oledDisplay.setCursor(1, 10);
+  oledDisplay.writeString(font, 1, `${result.temperature.toFixed(1)}°C`, 1, true);
+
+  oledDisplay.setCursor(1, 30);
+  oledDisplay.writeString(font, 1, 'Humidade:', 1, true);
+
+  oledDisplay.setCursor(1, 40);
+  oledDisplay.writeString(font, 1, `${result.humidity.toFixed(1)}%`, 1, true);
+
+  setTimeout(() => oledDisplay.turnOffDisplay(), 10000);
+}
 
 export async function run(mqttClient: MqttClient) {
   try {
@@ -19,6 +50,8 @@ export async function run(mqttClient: MqttClient) {
     logger.info(
       `Got temp = ${result.temperature.toFixed(1)}°C, humidity = ${result.humidity.toFixed(1)}%`,
     );
+
+    showOnDisplay(result);
 
     const topic = 'sensors/temperatures/create';
     const payload = {
