@@ -27,5 +27,5 @@ export function showTemperatureOnDisplay(oledDisplay: any, result: TemperatureSu
     true,
   );
 
-  setTimeout(() => oledDisplay.turnOffDisplay(), 20000);
+  setTimeout(() => oledDisplay.turnOffDisplay(), +process.env.DISPLAY_OFF_TIMEOUT_IN_MS || 20000);
 }

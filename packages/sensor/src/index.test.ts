@@ -25,8 +25,15 @@ jest.mock('rpi-oled', () =>
 );
 
 describe('Sensor', () => {
+  beforeAll(() => {
+    jest.useFakeTimers();
+    jest.spyOn(global, 'setTimeout');
+  });
+
   afterAll(() => {
     jest.restoreAllMocks();
+    jest.clearAllMocks();
+    jest.clearAllTimers();
   });
 
   it('Should read value from sensor, write it on OLED display and post it to mqtt topic', async () => {
@@ -45,8 +52,10 @@ describe('Sensor', () => {
 
     await run(mqttClient, oledDisplay);
 
+    jest.runAllTimers();
+
     expect(sensorReadSpy).toBeCalledTimes(1);
     expect(mqttPublishSpy).toBeCalledTimes(1);
-    expect(oledDisplayWriteSpy).toBeCalledTimes(4);
+    expect(oledDisplayWriteSpy).toBeCalledTimes(3);
   });
 });

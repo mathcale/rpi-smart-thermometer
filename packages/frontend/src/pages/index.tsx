@@ -101,11 +101,13 @@ export default function IndexPage({
                   <SummaryCard
                     title="Temperature"
                     content={`${findAllTemperaturesResponse.data[0].temperature.toFixed(1)}°C`}
+                    testId="temperature-summary-card-value"
                   />
 
                   <SummaryCard
                     title="Humidity"
-                    content={`${findAllTemperaturesResponse.data[0].humidity.toFixed(1)}°C`}
+                    content={`${findAllTemperaturesResponse.data[0].humidity.toFixed(1)}%`}
+                    testId="humidity-summary-card-value"
                   />
 
                   <SummaryCard
@@ -113,6 +115,7 @@ export default function IndexPage({
                     content={`${dayjs(findAllTemperaturesResponse.data[0].measuredAt).format(
                       'DD/MM/YYYY HH:mm',
                     )}`}
+                    testId="measured-at-summary-card-value"
                   />
                 </div>
               </section>

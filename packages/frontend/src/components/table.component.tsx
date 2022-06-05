@@ -66,7 +66,7 @@ export default function Table({
     <>
       <table
         {...getTableProps()}
-        className="table table-zebra w-full"
+        className="table table-zebra w-full mb-5"
         data-testid="measurements-table"
       >
         <thead>
@@ -98,16 +98,6 @@ export default function Table({
               </tr>
             );
           })}
-
-          <tr>
-            {loading ? (
-              <td colSpan={10000}>Loading...</td>
-            ) : (
-              <td colSpan={10000}>
-                Showing {page.length} of ~{controlledPageCount * pageSize} results
-              </td>
-            )}
-          </tr>
         </tbody>
       </table>
 
@@ -137,19 +127,29 @@ export default function Table({
           </button>
         </div>
 
-        <select
-          className="select select-bordered"
-          value={pageSize}
-          onChange={(e) => {
-            setPageSize(Number(e.target.value));
-          }}
-        >
-          {[10, 20, 30, 40, 50].map((pageSize) => (
-            <option key={pageSize} value={pageSize}>
-              Show {pageSize}
-            </option>
-          ))}
-        </select>
+        <div className="mb-5 flex flex-row items-center">
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            <p>
+              Showing {page.length} of ~{controlledPageCount * pageSize} results
+            </p>
+          )}
+
+          <select
+            className="select select-bordered ml-5"
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+            }}
+          >
+            {[10, 20, 30, 40, 50].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                Show {pageSize}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
     </>
   );

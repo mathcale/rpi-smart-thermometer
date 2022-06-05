@@ -28,7 +28,11 @@ describe('IndexPage', () => {
   describe('When rendering page with temperatures returned from api', () => {
     it('Should render summary cards correctly', () => {
       const renderResult = render(
-        <IndexPage findAllTemperaturesResponse={findAllTemperaturesResponseMock} apiError={null} />,
+        <IndexPage
+          findAllTemperaturesResponse={findAllTemperaturesResponseMock}
+          apiError={null}
+          apiEndpoint="http://localhost:3000"
+        />,
       );
 
       const cardsSection = renderResult.getByTestId('cards-section');
@@ -47,7 +51,11 @@ describe('IndexPage', () => {
 
     it('Should render measurements table correctly', () => {
       const renderResult = render(
-        <IndexPage findAllTemperaturesResponse={findAllTemperaturesResponseMock} apiError={null} />,
+        <IndexPage
+          findAllTemperaturesResponse={findAllTemperaturesResponseMock}
+          apiError={null}
+          apiEndpoint="http://localhost:3000"
+        />,
       );
 
       const measurementsTable = renderResult.getByTestId('measurements-table');
