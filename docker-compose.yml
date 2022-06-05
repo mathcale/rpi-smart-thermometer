@@ -34,6 +34,7 @@ services:
       - server
     environment:
       API_URL: http://server:3001
+      NEXT_PUBLIC_API_URL: http://server:3001
     depends_on:
       - server
 
