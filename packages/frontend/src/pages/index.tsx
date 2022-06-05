@@ -1,14 +1,17 @@
+import { useState, useRef, useMemo, useCallback } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import dayjs from 'dayjs';
 
 import type { GetServerSideProps } from 'next/types';
 
-import ErrorIcon from '../components/error-icon.component';
+import ErrorIcon from '../components/icons/error.icon.component';
 import SummaryCard from '../components/summary-card.component';
+import Table from '../components/table.component';
 
 import { ApiError } from '../dto/api-error.output';
 import { FindAllTemperaturesOutput } from '../dto/find-all-temperatures.output';
+import { Temperature } from '../dto/temperature.entity';
 
 import IconImage from '../../public/icon.png';
 
@@ -18,6 +21,56 @@ interface IndexPageProps {
 }
 
 export default function IndexPage({ findAllTemperaturesResponse, apiError }: IndexPageProps) {
+  const [data, setData] = useState<Temperature[] | null>(findAllTemperaturesResponse.data);
+  const [pageCount, setPageCount] = useState<number>(
+    Math.ceil(findAllTemperaturesResponse.count / findAllTemperaturesResponse.pageSize),
+  );
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const fetchIdRef = useRef(0);
+
+  const columns = useMemo(
+    () => [
+      {
+        Header: 'Date',
+        accessor: 'measuredAt',
+      },
+      {
+        Header: 'Temperature',
+        accessor: 'temperature',
+      },
+      {
+        Header: 'Humidity',
+        accessor: 'humidity',
+      },
+    ],
+    [],
+  );
+
+  const fetchData = useCallback(async ({ pageSize, pageIndex }) => {
+    const fetchId = ++fetchIdRef.current;
+
+    if (fetchId === fetchIdRef.current) {
+      try {
+        setIsLoading(true);
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/v1/temperatures?pageSize=${pageSize}&page=${
+            pageIndex + 1
+          }`,
+        );
+        const serverData: FindAllTemperaturesOutput = await response.json();
+
+        setData(serverData.data);
+        setPageCount(Math.ceil(serverData.count / serverData.pageSize));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  }, []);
+
   return (
     <>
       <Head>
@@ -66,25 +119,13 @@ export default function IndexPage({ findAllTemperaturesResponse, apiError }: Ind
               <h2 className="text-2xl font-bold">Measurements log</h2>
 
               <div className="overflow-x-auto mt-5">
-                <table className="table table-zebra w-full" data-testid="measurements-table">
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Temperature</th>
-                      <th>Humidity</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {findAllTemperaturesResponse.data.map((temperature, i) => (
-                      <tr key={i}>
-                        <td>{dayjs(temperature.measuredAt).format('DD/MM/YYYY HH:mm')}</td>
-                        <td>{temperature.temperature.toFixed(1)}°C</td>
-                        <td>{temperature.humidity.toFixed(1)}%</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <Table
+                  columns={columns}
+                  data={data}
+                  pageCount={pageCount}
+                  loading={isLoading}
+                  fetchData={fetchData}
+                />
               </div>
             </section>
           </>
