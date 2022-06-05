@@ -151,7 +151,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
         apiError: {
           error: 'There was an error while querying the temperatures, please try again later!',
         },
-        apiEndpoint: process.env.API_URL,
+        apiEndpoint: process.env.API_URL_FOR_BROWSER,
       },
     };
   }
@@ -160,7 +160,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
     props: {
       findAllTemperaturesResponse: data,
       apiError: null,
-      apiEndpoint: process.env.API_URL,
+      apiEndpoint: process.env.API_URL_FOR_BROWSER,
     },
   };
 };
