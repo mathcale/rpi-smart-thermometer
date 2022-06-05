@@ -18,9 +18,14 @@ import IconImage from '../../public/icon.png';
 interface IndexPageProps {
   findAllTemperaturesResponse?: FindAllTemperaturesOutput;
   apiError?: ApiError;
+  apiEndpoint: string;
 }
 
-export default function IndexPage({ findAllTemperaturesResponse, apiError }: IndexPageProps) {
+export default function IndexPage({
+  findAllTemperaturesResponse,
+  apiError,
+  apiEndpoint,
+}: IndexPageProps) {
   const [data, setData] = useState<Temperature[] | null>(findAllTemperaturesResponse.data);
   const [pageCount, setPageCount] = useState<number>(
     Math.ceil(findAllTemperaturesResponse.count / findAllTemperaturesResponse.pageSize),
@@ -55,9 +60,7 @@ export default function IndexPage({ findAllTemperaturesResponse, apiError }: Ind
         setIsLoading(true);
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/v1/temperatures?pageSize=${pageSize}&page=${
-            pageIndex + 1
-          }`,
+          `${apiEndpoint}/v1/temperatures?pageSize=${pageSize}&page=${pageIndex + 1}`,
         );
         const serverData: FindAllTemperaturesOutput = await response.json();
 
@@ -69,7 +72,7 @@ export default function IndexPage({ findAllTemperaturesResponse, apiError }: Ind
         setIsLoading(false);
       }
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
@@ -148,6 +151,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
         apiError: {
           error: 'There was an error while querying the temperatures, please try again later!',
         },
+        apiEndpoint: process.env.API_URL,
       },
     };
   }
@@ -156,6 +160,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
     props: {
       findAllTemperaturesResponse: data,
       apiError: null,
+      apiEndpoint: process.env.API_URL,
     },
   };
 };
