@@ -27,7 +27,7 @@
     "pino": "^7.11.0",
     "pino-pretty": "^7.6.1",
     "rpi-oled": "^0.9.1",
-    "undici": "^5.4.0"
+    "undici": "^5.8.2"
   },
   "devDependencies": {
     "@types/jest": "^27.5.1",
