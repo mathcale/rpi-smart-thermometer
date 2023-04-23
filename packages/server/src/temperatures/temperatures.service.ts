@@ -4,8 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { FindConditions, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
+import { FindOptionsWhere, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 
 import { CreateTemperatureDto } from './dto/create-temperature.dto';
 import { FindAllTemperaturesOutput } from './dto/find-all-temperatures.output';
@@ -17,10 +16,7 @@ import { TemperaturesRepository } from './temperatures.repository';
 export class TemperaturesService {
   private readonly logger = new Logger(TemperaturesService.name);
 
-  constructor(
-    @InjectRepository(TemperaturesRepository)
-    private readonly temperaturesRepository: TemperaturesRepository,
-  ) {}
+  constructor(private readonly temperaturesRepository: TemperaturesRepository) {}
 
   async findAll({
     page,
@@ -32,7 +28,7 @@ export class TemperaturesService {
       `Starting find all temperatures flow, page: [${page}], pageSize: [${pageSize}], startDate: [${startDate}], endDate: [${endDate}]`,
     );
 
-    const where: FindConditions<Temperature> = {};
+    const where: FindOptionsWhere<Temperature> = {};
 
     if (startDate) {
       where.measuredAt = MoreThanOrEqual(startDate);
@@ -83,7 +79,7 @@ export class TemperaturesService {
   async findOne(externalId: string): Promise<Temperature | never> {
     this.logger.log(`Fetching temperature [${externalId}]...`);
 
-    const foundTemperature = await this.temperaturesRepository.findOne({ externalId });
+    const foundTemperature = await this.temperaturesRepository.findOne({ where: { externalId } });
 
     if (!foundTemperature) {
       this.logger.warn(`Temperature [${externalId}] not found!`);

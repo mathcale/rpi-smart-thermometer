@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { TemperaturesService } from './temperatures.service';
+import { Temperature } from './entities/temperature.entity';
 import { TemperaturesController } from './temperatures.controller';
 import { TemperaturesRepository } from './temperatures.repository';
+import { TemperaturesService } from './temperatures.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TemperaturesRepository])],
+  imports: [TypeOrmModule.forFeature([Temperature])],
   controllers: [TemperaturesController],
-  providers: [TemperaturesService],
+  providers: [TemperaturesService, TemperaturesRepository],
 })
 export class TemperaturesModule {}

@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Transport, MicroserviceOptions } from '@nestjs/microservices';
-import { fastifyHelmet } from 'fastify-helmet';
+import { fastifyHelmet } from '@fastify/helmet';
 
 import { AppModule } from './app.module';
 import { TransformInterceptor } from './transform.interceptor';
