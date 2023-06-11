@@ -21,21 +21,22 @@ import SummaryCard from '../components/summary-card.component';
 import Table from '../components/table.component';
 
 import { ApiError } from '../dto/api-error.output';
+import { FindAllByDateRangeOutput } from '../dto/find-all-by-date-range.output';
 import { FindAllTemperaturesOutput } from '../dto/find-all-temperatures.output';
-import { Temperature } from '../dto/temperature.entity';
+import { SimpleTemperature, Temperature } from '../dto/temperature.entity';
 
 import IconImage from '../../public/icon.png';
 
 interface IndexPageProps {
   findAllTemperaturesResponse?: FindAllTemperaturesOutput;
-  findAllTemperaturesResponseForChart?: FindAllTemperaturesOutput;
+  findAllTemperaturesResponseForChart?: FindAllByDateRangeOutput;
   apiError?: ApiError;
   apiEndpoint: string;
 }
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const formatChartData = (temperatures: Temperature[]) => {
+const formatChartData = (temperatures: SimpleTemperature[]) => {
   return temperatures.reduce((acc, curr) => {
     const date = dayjs(curr.measuredAt).format('DD/MM');
 
@@ -64,7 +65,7 @@ export default function IndexPage({
   const fetchIdRef = useRef(0);
 
   const chartData = useMemo(() => {
-    const formattedData = formatChartData(findAllTemperaturesResponseForChart.data);
+    const formattedData = formatChartData(findAllTemperaturesResponseForChart?.data);
 
     return {
       labels: Object.keys(formattedData),
@@ -78,7 +79,7 @@ export default function IndexPage({
         },
       ],
     };
-  }, [findAllTemperaturesResponseForChart.data]);
+  }, [findAllTemperaturesResponseForChart?.data]);
 
   const columns = useMemo(
     () => [
