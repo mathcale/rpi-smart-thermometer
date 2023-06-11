@@ -3,6 +3,7 @@ import { render } from '@testing-library/react';
 
 import IndexPage from '../src/pages/index';
 
+import { FindAllByDateRangeOutput } from '../src/dto/find-all-by-date-range.output';
 import { FindAllTemperaturesOutput } from '../src/dto/find-all-temperatures.output';
 
 describe('IndexPage', () => {
@@ -21,7 +22,18 @@ describe('IndexPage', () => {
     ],
   };
 
-  afterAll(() => {
+  const findAllTemperaturesResponseForChartMock: FindAllByDateRangeOutput = {
+    count: 1,
+    data: [
+      {
+        externalId: 'test-1',
+        temperature: 20,
+        measuredAt: '2022-05-27T20:00:00.000Z',
+      },
+    ],
+  };
+
+  afterEach(() => {
     jest.clearAllMocks();
   });
 
@@ -30,6 +42,7 @@ describe('IndexPage', () => {
       const renderResult = render(
         <IndexPage
           findAllTemperaturesResponse={findAllTemperaturesResponseMock}
+          findAllTemperaturesResponseForChart={findAllTemperaturesResponseForChartMock}
           apiError={null}
           apiEndpoint="http://localhost:3000"
         />,
@@ -53,6 +66,7 @@ describe('IndexPage', () => {
       const renderResult = render(
         <IndexPage
           findAllTemperaturesResponse={findAllTemperaturesResponseMock}
+          findAllTemperaturesResponseForChart={findAllTemperaturesResponseForChartMock}
           apiError={null}
           apiEndpoint="http://localhost:3000"
         />,
