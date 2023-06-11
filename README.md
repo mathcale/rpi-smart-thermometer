@@ -11,7 +11,7 @@
 
 ![Architecture diagram](docs/rpi-smart-thermometer-architecture.drawio.png)
 
-Every 10 minutes, a Node.js script reads the current temperature and humidity from the DHT22 sensor plugged to a Raspberry Pi Zero W via GPIO and then publishes this data via MQTT to the Mosquitto server.
+Every 30 minutes, a Node.js script reads the current temperature and humidity from the DHT22 sensor plugged to a Raspberry Pi Zero W via GPIO and then publishes this data via MQTT to the Mosquitto server.
 
 On the server stack, a Nest.js microsservice listens to a specific topic on the Mosquitto server and, when there's a new message, it gets parsed, validated and stored on a PostgreSQL database. This stack is deployed with Docker Compose to my local Raspberry Pi 4 home server.
 
@@ -40,4 +40,3 @@ There's also a button that, when pressed, will fetch the latest reading from the
 - Docker
 - PostgreSQL
 - Mosquitto
-
