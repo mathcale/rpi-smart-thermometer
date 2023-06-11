@@ -2,6 +2,17 @@ import { useState, useRef, useMemo, useCallback } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import dayjs from 'dayjs';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
 import type { GetServerSideProps } from 'next/types';
 
@@ -17,12 +28,30 @@ import IconImage from '../../public/icon.png';
 
 interface IndexPageProps {
   findAllTemperaturesResponse?: FindAllTemperaturesOutput;
+  findAllTemperaturesResponseForChart?: FindAllTemperaturesOutput;
   apiError?: ApiError;
   apiEndpoint: string;
 }
 
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+
+const formatChartData = (temperatures: Temperature[]) => {
+  return temperatures.reduce((acc, curr) => {
+    const date = dayjs(curr.measuredAt).format('DD/MM');
+
+    if (acc[date]) {
+      acc[date] = (acc[date] + curr.temperature) / 2;
+    } else {
+      acc[date] = curr.temperature;
+    }
+
+    return acc;
+  }, {});
+};
+
 export default function IndexPage({
   findAllTemperaturesResponse,
+  findAllTemperaturesResponseForChart,
   apiError,
   apiEndpoint,
 }: IndexPageProps) {
@@ -33,6 +62,23 @@ export default function IndexPage({
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const fetchIdRef = useRef(0);
+
+  const chartData = useMemo(() => {
+    const formattedData = formatChartData(findAllTemperaturesResponseForChart.data);
+
+    return {
+      labels: Object.keys(formattedData),
+      datasets: [
+        {
+          label: 'Temperature',
+          fill: true,
+          borderColor: '#641ae6',
+          backgroundColor: '#641ae6',
+          data: Object.values(formattedData),
+        },
+      ],
+    };
+  }, [findAllTemperaturesResponseForChart.data]);
 
   const columns = useMemo(
     () => [
@@ -121,19 +167,69 @@ export default function IndexPage({
               </section>
             )}
 
-            <section>
-              <h2 className="text-2xl font-bold">Measurements log</h2>
+            <div className="flex flex-row flex-wrap">
+              <section className="basis-1/2">
+                <h2 className="text-2xl font-bold">Average temperatures</h2>
 
-              <div className="overflow-x-auto mt-5">
-                <Table
-                  columns={columns}
-                  data={data}
-                  pageCount={pageCount}
-                  loading={isLoading}
-                  fetchData={fetchData}
-                />
-              </div>
-            </section>
+                <div className="card compact bg-base-300 shadow-xl mt-5 mr-0 mb-5 md:mr-5 md:mb-0 p-2 md:p-5">
+                  <div className="card-body">
+                    <Line
+                      data={chartData}
+                      options={{
+                        responsive: true,
+                        plugins: {
+                          legend: {
+                            display: false,
+                          },
+                          tooltip: {
+                            callbacks: {
+                              label: function (context) {
+                                return `${Number(context.raw).toFixed(1).replace('.', ',')}°C`;
+                              },
+                            },
+                          },
+                        },
+                        scales: {
+                          x: {
+                            grid: {
+                              color: '#252732',
+                            },
+                            ticks: {
+                              color: '#f8f8f2',
+                            },
+                          },
+                          y: {
+                            grid: {
+                              color: '#252732',
+                            },
+                            ticks: {
+                              color: '#f8f8f2',
+                              callback: function (value) {
+                                return `${Number(value).toFixed(1).replace('.', ',')}°C`;
+                              },
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </div>
+                </div>
+              </section>
+
+              <section className="basis-1/2">
+                <h2 className="text-2xl font-bold">Measurements log</h2>
+
+                <div className="overflow-x-auto mt-5">
+                  <Table
+                    columns={columns}
+                    data={data}
+                    pageCount={pageCount}
+                    loading={isLoading}
+                    fetchData={fetchData}
+                  />
+                </div>
+              </section>
+            </div>
           </>
         )}
       </main>
@@ -142,15 +238,22 @@ export default function IndexPage({
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  const response = await fetch(`${process.env.API_URL}/v1/temperatures`);
-  const data: FindAllTemperaturesOutput = await response.json();
+  const [tableResponse, chartResponse] = await Promise.all([
+    fetch(`${process.env.API_URL}/v1/temperatures`),
+    // TODO: make range dynamic
+    fetch(`${process.env.API_URL}/v1/temperatures/date-range?range=week`),
+  ]);
 
-  if (!response.ok) {
+  const data: FindAllTemperaturesOutput = await tableResponse.json();
+  const chartData: FindAllTemperaturesOutput = await chartResponse.json();
+
+  if (!tableResponse.ok || !chartResponse.ok) {
     console.error('[ERROR] IndexPage.getServerSideProps:', data);
 
     return {
       props: {
         findAllTemperaturesResponse: null,
+        findAllTemperaturesResponseForChart: null,
         apiError: {
           error: 'There was an error while querying the temperatures, please try again later!',
         },
@@ -162,6 +265,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
   return {
     props: {
       findAllTemperaturesResponse: data,
+      findAllTemperaturesResponseForChart: chartData,
       apiError: null,
       apiEndpoint: process.env.API_URL_FOR_BROWSER,
     },
