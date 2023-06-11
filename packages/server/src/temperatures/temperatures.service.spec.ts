@@ -1,7 +1,8 @@
-import { NotFoundException } from '@nestjs/common';
+import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
+import { DateRange } from './dto/date-range.enum';
 import { Temperature } from './entities/temperature.entity';
 import { TemperaturesRepository } from './temperatures.repository';
 import { TemperaturesService } from './temperatures.service';
@@ -28,6 +29,7 @@ describe('TemperaturesService', () => {
         {
           provide: getRepositoryToken(TemperaturesRepository),
           useValue: {
+            find: jest.fn().mockResolvedValue([temperatureMock]),
             findAndCount: jest.fn().mockResolvedValue([[temperatureMock], 1]),
             findOne: jest.fn().mockResolvedValue(temperatureMock),
             create: jest.fn().mockReturnValue(temperatureMock),
@@ -41,8 +43,9 @@ describe('TemperaturesService', () => {
     repository = module.get<TemperaturesRepository>(TemperaturesRepository);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it('return list of found temperatures', async () => {
@@ -51,6 +54,46 @@ describe('TemperaturesService', () => {
     expect(result).toBeDefined();
     expect(result.count).toEqual(1);
     expect(result.data).toStrictEqual([temperatureMock]);
+  });
+
+  it('should return empty list when no temperatures found', async () => {
+    const repositorySpy = jest.spyOn(repository, 'findAndCount').mockResolvedValue([[], 0]);
+    const result = await service.findAll({ page: 1, pageSize: 10 });
+
+    expect(result).toBeDefined();
+    expect(result.count).toEqual(0);
+    expect(result.data).toStrictEqual([]);
+    expect(repositorySpy).toBeCalledTimes(1);
+  });
+
+  it('should throw error when trying to find temperatures but something went wrong', async () => {
+    const repositorySpy = jest.spyOn(repository, 'findAndCount').mockImplementation(() => {
+      throw new InternalServerErrorException();
+    });
+
+    await expect(service.findAll({ page: 1, pageSize: 10 })).rejects.toThrowError(
+      InternalServerErrorException,
+    );
+
+    expect(repositorySpy).toBeCalledTimes(1);
+  });
+
+  it('should find temperatures by date range', async () => {
+    const result = await service.findAllByDateRange({ range: DateRange.DAY });
+
+    expect(result).toBeDefined();
+    expect(result.count).toEqual(1);
+    expect(result.data).toStrictEqual([temperatureMock]);
+  });
+
+  it('should return empty list when no temperatures found by date range', async () => {
+    const repositorySpy = jest.spyOn(repository, 'find').mockResolvedValue([]);
+    const result = await service.findAllByDateRange({ range: DateRange.DAY });
+
+    expect(result).toBeDefined();
+    expect(result.count).toEqual(0);
+    expect(result.data).toStrictEqual([]);
+    expect(repositorySpy).toBeCalledTimes(1);
   });
 
   it('should find latest temperature', async () => {

@@ -5,8 +5,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { FindOptionsWhere, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
+import dayjs from 'dayjs';
 
 import { CreateTemperatureDto } from './dto/create-temperature.dto';
+import { DateRange } from './dto/date-range.enum';
+import { FindAllByDateRangeOutput } from './dto/find-all-by-date-range.output';
+import { FindAllByDateRangeParams } from './dto/find-all-by-date-range.params';
 import { FindAllTemperaturesOutput } from './dto/find-all-temperatures.output';
 import { FindAllTemperaturesParams } from './dto/find-all-temperatures.params';
 import { Temperature } from './entities/temperature.entity';
@@ -52,6 +56,42 @@ export class TemperaturesService {
     return {
       count: total,
       pageSize,
+      data: result,
+    };
+  }
+
+  async findAllByDateRange({
+    range,
+  }: FindAllByDateRangeParams): Promise<FindAllByDateRangeOutput | never> {
+    this.logger.log(`Starting find all temperatures by date range flow, range: [${range}]`);
+
+    const where: FindOptionsWhere<Temperature> = {};
+
+    switch (range) {
+      case DateRange.DAY:
+        where.measuredAt = MoreThanOrEqual(dayjs().subtract(1, 'day').format('YYYY-MM-DD'));
+        break;
+      case DateRange.WEEK:
+        where.measuredAt = MoreThanOrEqual(dayjs().subtract(7, 'day').format('YYYY-MM-DD'));
+        break;
+      case DateRange.MONTH:
+        where.measuredAt = MoreThanOrEqual(dayjs().subtract(1, 'month').format('YYYY-MM-DD'));
+        break;
+    }
+
+    const result = await this.temperaturesRepository.find({
+      select: ['externalId', 'temperature', 'measuredAt'],
+      where,
+      order: {
+        createdAt: 'ASC',
+      },
+      cache: true,
+    });
+
+    this.logger.log(`Fetched temperatures by range, found [${result.length}]`);
+
+    return {
+      count: result.length,
       data: result,
     };
   }

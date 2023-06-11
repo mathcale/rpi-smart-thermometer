@@ -1,9 +1,10 @@
 import { Controller, Get, Param, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
-import { TemperaturesService } from './temperatures.service';
 import { CreateTemperatureDto } from './dto/create-temperature.dto';
+import { FindAllByDateRangeParams } from './dto/find-all-by-date-range.params';
 import { FindAllTemperaturesParams } from './dto/find-all-temperatures.params';
+import { TemperaturesService } from './temperatures.service';
 
 @Controller({ path: 'temperatures', version: '1' })
 export class TemperaturesController {
@@ -13,6 +14,11 @@ export class TemperaturesController {
   @UsePipes(new ValidationPipe({ transform: true }))
   findAll(@Query() findAllTemperaturesParams: FindAllTemperaturesParams) {
     return this.temperaturesService.findAll(findAllTemperaturesParams);
+  }
+
+  @Get('date-range')
+  findAllByDateRange(@Query() findAllByDateRangeParams: FindAllByDateRangeParams) {
+    return this.temperaturesService.findAllByDateRange(findAllByDateRangeParams);
   }
 
   @Get('latest')
