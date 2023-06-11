@@ -6,3 +6,5 @@ export interface Temperature {
   measuredAt: string;
   createdAt: string;
 }
+
+export type SimpleTemperature = Pick<Temperature, 'externalId' | 'temperature' | 'measuredAt'>;
