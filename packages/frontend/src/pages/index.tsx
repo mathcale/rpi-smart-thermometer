@@ -242,7 +242,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
   const [tableResponse, chartResponse] = await Promise.all([
     fetch(`${process.env.API_URL}/v1/temperatures`),
     // TODO: make range dynamic
-    fetch(`${process.env.API_URL}/v1/temperatures/date-range?range=week`),
+    fetch(`${process.env.API_URL}/v1/temperatures/date-range?range=month`),
   ]);
 
   const data: FindAllTemperaturesOutput = await tableResponse.json();
