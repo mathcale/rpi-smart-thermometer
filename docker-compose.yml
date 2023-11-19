@@ -7,6 +7,7 @@ services:
       context: ./packages/server
     ports:
       - 3001:3001
+    restart: always
     links:
       - database
       - mqtt
@@ -30,11 +31,12 @@ services:
       context: ./packages/frontend
     ports:
       - 3002:3001
+    restart: always
     links:
       - server
     environment:
       API_URL: http://server:3001
-      API_URL_FOR_BROWSER: http://192.168.3.196:3001
+      API_URL_FOR_BROWSER: http://pi4.home.lan:3001
     depends_on:
       - server
 
@@ -45,6 +47,7 @@ services:
       POSTGRES_PASSWORD: "postgres"
     ports:
       - 5432:5432
+    restart: always
     volumes:
       - database:/var/lib/postgresql/data
 
@@ -54,6 +57,7 @@ services:
     ports:
       - 1883:1883
       - 9001:9001
+    restart: always
     volumes:
       - ${PWD}/mosquitto.conf:/mosquitto/config/mosquitto.conf
       - mqtt:/mosquitto:rw
